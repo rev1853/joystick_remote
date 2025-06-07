@@ -1,5 +1,4 @@
 #include "lcd.h"
-#include "config.h"
 #include <Arduino.h>
 
 LCDController::LCDController() : lcd(LCD_ADDRESS, LCD_COLS, LCD_ROWS)
@@ -83,53 +82,22 @@ void LCDController::displayJoystickStatus(const JoystickPosition &joy, const Sim
 
 String LCDController::formatJoystickData(const JoystickPosition &joy, const SimpleMotorCommand &cmd)
 {
-    String line = "X:";
+    // Format: "45,-23 67%"
+    String line = String(joy.x) + "," + String(joy.y) + " " + String(cmd.speedPercent) + "%";
 
-    // Format X value (3 characters with sign)
-    if (joy.x >= 0)
+    // Pad with spaces to fill the line and clear any previous text
+    while (line.length() < LCD_COLS)
     {
         line += " ";
     }
-    if (abs(joy.x) < 10)
-    {
-        line += " ";
-    }
-    line += String(joy.x);
-
-    line += " Y:";
-
-    // Format Y value (3 characters with sign)
-    if (joy.y >= 0)
-    {
-        line += " ";
-    }
-    if (abs(joy.y) < 10)
-    {
-        line += " ";
-    }
-    line += String(joy.y);
-
-    line += " S:";
-
-    // Format speed (3 characters)
-    if (cmd.speedPercent < 10)
-    {
-        line += " ";
-    }
-    if (cmd.speedPercent < 100)
-    {
-        line += " ";
-    }
-    line += String(cmd.speedPercent);
-    line += "%";
 
     return line;
 }
 
 String LCDController::formatDirectionSpeed(const SimpleMotorCommand &cmd)
 {
-    String line = "DIR: ";
-    line += getDirectionString(cmd.direction);
+    // Format: "BACKWARD" (just the direction, no "DIR:" prefix)
+    String line = getDirectionString(cmd.direction);
 
     // Pad the rest with spaces to clear any previous text
     while (line.length() < LCD_COLS)
@@ -145,12 +113,12 @@ String LCDController::getDirectionString(MotorDirection direction)
     switch (direction)
     {
     case MOTOR_FORWARD:
-        return "FORWARD ";
+        return "FORWARD";
     case MOTOR_BACKWARD:
         return "BACKWARD";
     case MOTOR_STOP:
     default:
-        return "STOPPED ";
+        return "STOPPED";
     }
 }
 

@@ -32,7 +32,8 @@ public:
     JoystickController();
 
     void begin();
-    void calibrate();
+    void calibrate_center();
+    void calibrate_range();
     JoystickPosition read();
 
     bool isCalibrated() const;

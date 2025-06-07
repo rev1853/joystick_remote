@@ -4,8 +4,10 @@ MainRunner main_runner;
 
 void setup()
 {
+    main_runner.setup();
 }
 
 void loop()
 {
+    main_runner.loop();
 }

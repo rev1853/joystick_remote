@@ -72,11 +72,14 @@ public:
         // mapper.begin();
 
         // Display calibration instruction
-        lcdDisplay.displayInstruction("Calibrating", "Keep centered");
+        Serial.println("Starting joystick calibration...");
 
         // Calibrate joystick
-        Serial.println("Starting joystick calibration...");
-        joystick.calibrate();
+        lcdDisplay.displayInstruction("Calibrating", "Keep centered");
+        joystick.calibrate_center();
+
+        lcdDisplay.displayInstruction("Calibrating", "Move Joystick");
+        joystick.calibrate_range();
 
         // Display calibration result
         if (joystick.isCalibrated())

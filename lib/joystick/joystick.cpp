@@ -26,7 +26,7 @@ void JoystickController::begin()
     Serial.begin(SERIAL_BAUD);
 }
 
-void JoystickController::calibrate()
+void JoystickController::calibrate_center()
 {
     Serial.println("=== JOYSTICK CALIBRATION ===");
     Serial.println("1. Keep joystick centered...");
@@ -42,7 +42,10 @@ void JoystickController::calibrate()
     }
     calibration.xCenter = xSum / CALIBRATION_SAMPLES;
     calibration.yCenter = ySum / CALIBRATION_SAMPLES;
+}
 
+void JoystickController::calibrate_range()
+{
     Serial.println("2. Move joystick to ALL extremes...");
     delay(1000);
 
