@@ -5,6 +5,8 @@
 #include "joystick.h"
 #include "motor.h"
 #include "control_mapper.h"
+#include "lcd.h"
+#include <Wire.h>
 
 class MainRunner : public Runner
 {
@@ -13,6 +15,7 @@ private:
     JoystickController joystick;
     MotorController motor;
     SimpleControlMapper mapper;
+    LCDController lcdDisplay;
 
     // Status tracking
     unsigned long lastStatusTime = 0;
@@ -37,6 +40,16 @@ private:
         Serial.println("==============");
     }
 
+    void initializeI2C()
+    {
+        // Initialize I2C with custom pins
+        Wire.begin(LCD_SDA_PIN, LCD_SCL_PIN);
+        Serial.print("I2C initialized - SDA: ");
+        Serial.print(LCD_SDA_PIN);
+        Serial.print(", SCL: ");
+        Serial.println(LCD_SCL_PIN);
+    }
+
 public:
     void setup() override
     {
@@ -46,14 +59,34 @@ public:
         Serial.println("Y-axis: Speed (Up = Faster)");
         Serial.println("=====================================");
 
+        // Initialize I2C first
+        initializeI2C();
+
+        // Initialize LCD
+        lcdDisplay.begin();
+        lcdDisplay.displayInstruction("System Starting", "Please wait...");
+
         // Initialize components
         joystick.begin();
         // motor.begin();
         // mapper.begin();
 
+        // Display calibration instruction
+        lcdDisplay.displayInstruction("Calibrating", "Keep centered");
+
         // Calibrate joystick
         Serial.println("Starting joystick calibration...");
         joystick.calibrate();
+
+        // Display calibration result
+        if (joystick.isCalibrated())
+        {
+            lcdDisplay.displayInstruction("Calibration", "Success!");
+        }
+        else
+        {
+            lcdDisplay.displayInstruction("Calibration", "Failed!");
+        }
 
         Serial.println("=== READY FOR CONTROL ===");
         Serial.println("Move joystick:");
@@ -61,6 +94,9 @@ public:
         Serial.println("- Up: Increase speed");
         Serial.println("- Center: Stop motor");
         Serial.println("========================");
+
+        // Display ready message
+        lcdDisplay.displayTwoLineMessage("System Ready", "Move joystick", 1000);
     }
 
     void loop() override
@@ -74,6 +110,9 @@ public:
         // Process joystick input
         SimpleMotorCommand motorCmd = mapper.processInput(joyPos);
 
+        // Update LCD with real-time data
+        lcdDisplay.displayJoystickStatus(joyPos, motorCmd);
+
         // Execute motor command if it has changed
         if (motorCmd.hasChanged)
         {
@@ -82,14 +121,17 @@ public:
             if (motorCmd.direction == MOTOR_STOP || motorCmd.speedPercent == 0)
             {
                 // motor.stop();
+                Serial.println("Motor stopped");
             }
             else
             {
                 // motor.move(motorCmd.direction, motorCmd.speedPWM);
+                String direction = (motorCmd.direction == MOTOR_FORWARD) ? "Forward" : "Backward";
+                Serial.println("Motor: " + direction + " at " + String(motorCmd.speedPercent) + "%");
             }
         }
 
-        // Print periodic status
+        // Print periodic status to Serial
         unsigned long currentTime = millis();
         if (currentTime - lastStatusTime >= STATUS_INTERVAL)
         {

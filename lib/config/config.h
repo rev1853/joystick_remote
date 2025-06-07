@@ -43,6 +43,18 @@ const int DIRECTION_DEAD_ZONE = 15; // Dead zone for X-axis direction
 const int SPEED_DEAD_ZONE = 10;     // Dead zone for Y-axis speed
 const int MIN_MOTOR_SPEED = 30;     // Minimum useful motor speed (0-100%)
 
+// LCD I2C settings
+const int LCD_ADDRESS = 0x27; // I2C address of LCD
+const int LCD_SDA_PIN = 18;   // SDA pin
+const int LCD_SCL_PIN = 19;   // SCL pin
+const int LCD_COLS = 16;      // LCD columns
+const int LCD_ROWS = 2;       // LCD rows
+
+// LCD timing settings
+const int LCD_UPDATE_INTERVAL = 200;    // Update interval in ms (reduce flickering)
+const int LCD_STARTUP_DELAY = 2000;     // Startup message delay
+const int LCD_INSTRUCTION_DELAY = 1500; // Instruction display duration
+
 // Motor directions
 enum MotorDirection
 {
