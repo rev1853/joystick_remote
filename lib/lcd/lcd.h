@@ -35,7 +35,7 @@ public:
     void displayJoystickStatus(const JoystickPosition &joy, const SimpleMotorCommand &cmd);
     void displayMessage(const String &message, int duration = 0);
     void displayTwoLineMessage(const String &line1, const String &line2, int duration = 0);
-    void displayInstruction(const String &instruction, const String &result = "");
+    void displayInstruction(const String &title, const String &subtitle = "");
 
     // Utility functions
     void update(); // Call in loop for timed updates

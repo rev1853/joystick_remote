@@ -82,7 +82,7 @@ void LCDController::displayJoystickStatus(const JoystickPosition &joy, const Sim
 
 String LCDController::formatJoystickData(const JoystickPosition &joy, const SimpleMotorCommand &cmd)
 {
-    // Format: "45,-23 67%"
+    // Format: "±123,±456 67%" - handle larger numbers
     String line = String(joy.x) + "," + String(joy.y) + " " + String(cmd.speedPercent) + "%";
 
     // Pad with spaces to fill the line and clear any previous text
@@ -188,25 +188,34 @@ void LCDController::displayTwoLineMessage(const String &line1, const String &lin
     }
 }
 
-void LCDController::displayInstruction(const String &instruction, const String &result)
+void LCDController::displayInstruction(const String &title, const String &subtitle)
 {
     if (!isInitialized)
         return;
 
-    Serial.println("LCD Instruction: " + instruction);
-    if (result.length() > 0)
+    Serial.println("LCD: " + title);
+    if (subtitle.length() > 0)
     {
-        Serial.println("LCD Result: " + result);
+        Serial.println("     " + subtitle);
     }
 
-    // Display instruction
-    displayMessage(instruction, LCD_INSTRUCTION_DELAY);
+    // Clear display
+    clear();
 
-    // Display result if provided
-    if (result.length() > 0)
+    // Display title on line 1
+    lcd.setCursor(0, 0);
+    lcd.print(title.substring(0, LCD_COLS));
+
+    // Display subtitle on line 2 (if provided)
+    if (subtitle.length() > 0)
     {
-        displayMessage("Result: " + result, LCD_INSTRUCTION_DELAY);
+        lcd.setCursor(0, 1);
+        lcd.print(subtitle.substring(0, LCD_COLS));
     }
+
+    // Update tracking variables
+    lastLine1 = title;
+    lastLine2 = subtitle;
 }
 
 void LCDController::update()

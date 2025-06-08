@@ -3,17 +3,16 @@
 
 #include "runner.h"
 #include "joystick.h"
-#include "motor.h"
 #include "control_mapper.h"
 #include "lcd.h"
 #include <Wire.h>
+#include <Arduino.h>
 
 class MainRunner : public Runner
 {
 private:
     // Component instances
     JoystickController joystick;
-    MotorController motor;
     SimpleControlMapper mapper;
     LCDController lcdDisplay;
 
@@ -36,7 +35,6 @@ private:
         Serial.print(cmd.speedPercent);
         Serial.println("%)");
 
-        motor.printStatus();
         Serial.println("==============");
     }
 
@@ -68,8 +66,7 @@ public:
 
         // Initialize components
         joystick.begin();
-        // motor.begin();
-        // mapper.begin();
+        mapper.begin();
 
         // Display calibration instruction
         Serial.println("Starting joystick calibration...");
@@ -104,8 +101,6 @@ public:
 
     void loop() override
     {
-        // Update motor (important for ramping)
-        // motor.update();
 
         // Read joystick position
         JoystickPosition joyPos = joystick.read();
@@ -119,16 +114,14 @@ public:
         // Execute motor command if it has changed
         if (motorCmd.hasChanged)
         {
-            // mapper.printCommand(motorCmd);
+            mapper.printCommand(motorCmd);
 
             if (motorCmd.direction == MOTOR_STOP || motorCmd.speedPercent == 0)
             {
-                // motor.stop();
                 Serial.println("Motor stopped");
             }
             else
             {
-                // motor.move(motorCmd.direction, motorCmd.speedPWM);
                 String direction = (motorCmd.direction == MOTOR_FORWARD) ? "Forward" : "Backward";
                 Serial.println("Motor: " + direction + " at " + String(motorCmd.speedPercent) + "%");
             }
